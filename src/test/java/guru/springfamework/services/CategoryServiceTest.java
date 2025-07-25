@@ -25,17 +25,17 @@ class CategoryServiceTest {
     @Mock
     CategoryRepository categoryRepository;
 
-    AutoCloseable closeable;
+    AutoCloseable mocks;
 
     @BeforeEach
     public void setUp() {
-        closeable = MockitoAnnotations.openMocks(this);
+        mocks = MockitoAnnotations.openMocks(this);
         categoryService = new CategoryServiceImpl(CategoryMapper.INSTANCE, categoryRepository);
     }
 
     @AfterEach
     public void tearDown() throws Exception {
-        closeable.close();
+        mocks.close();
     }
 
     @Test

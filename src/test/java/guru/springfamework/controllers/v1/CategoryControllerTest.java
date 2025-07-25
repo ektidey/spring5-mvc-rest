@@ -32,19 +32,19 @@ class CategoryControllerTest {
     @InjectMocks
     CategoryController categoryController;
 
-    AutoCloseable closeable;
+    AutoCloseable mocks;
 
     MockMvc mockMvc;
 
     @BeforeEach
     public void setUp() {
-        closeable = MockitoAnnotations.openMocks(this);
+        mocks = MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(categoryController).build();
     }
 
     @AfterEach
     public void tearDown() throws Exception {
-        closeable.close();
+        mocks.close();
     }
 
     @Test
