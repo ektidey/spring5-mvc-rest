@@ -1,7 +1,9 @@
 package guru.springfamework.controllers.v1;
 
 import guru.springfamework.api.v1.model.CategoryDTO;
+import guru.springfamework.controllers.RestResponseEntityExceptionHandler;
 import guru.springfamework.services.CategoryService;
+import guru.springfamework.services.ResourceNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +41,9 @@ class CategoryControllerTest {
     @BeforeEach
     public void setUp() {
         mocks = MockitoAnnotations.openMocks(this);
-        mockMvc = MockMvcBuilders.standaloneSetup(categoryController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(categoryController)
+            .setControllerAdvice(new RestResponseEntityExceptionHandler())
+            .build();
     }
 
     @AfterEach
@@ -61,7 +65,7 @@ class CategoryControllerTest {
 
         Mockito.when(categoryService.getAllCategories()).thenReturn(categories);
 
-        mockMvc.perform(get("/api/v1/categories")
+        mockMvc.perform(get(CategoryController.BASE_URL)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.categories", hasSize(2)));
@@ -75,10 +79,20 @@ class CategoryControllerTest {
 
         Mockito.when(categoryService.getCategoryByName(NAME)).thenReturn(category);
 
-        mockMvc.perform(get("/api/v1/categories/Jim")
+        mockMvc.perform(get(CategoryController.BASE_URL + "/Jim")
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.name", equalTo(NAME)));
+    }
+
+    @Test
+    public void testGetByNameNotFound() throws Exception {
+
+        Mockito.when(categoryService.getCategoryByName(NAME)).thenThrow(ResourceNotFoundException.class);
+
+        mockMvc.perform(get(CategoryController.BASE_URL + "/Jim")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
     }
 
 }
