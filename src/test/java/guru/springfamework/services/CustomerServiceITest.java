@@ -6,6 +6,7 @@ import guru.springfamework.bootstrap.Bootstrap;
 import guru.springfamework.domain.Customer;
 import guru.springfamework.repositories.CategoryRepository;
 import guru.springfamework.repositories.CustomerRepository;
+import guru.springfamework.repositories.VendorRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,7 +15,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,11 +31,14 @@ public class CustomerServiceITest {
     @Autowired
     CategoryRepository categoryRepository;
 
+    @Autowired
+    VendorRepository vendorRepository;
+
     CustomerService customerService;
 
     @BeforeEach
     public void setUp() throws Exception {
-        Bootstrap bootstrap = new Bootstrap(categoryRepository, customerRepository);
+        Bootstrap bootstrap = new Bootstrap(categoryRepository, customerRepository, vendorRepository);
         bootstrap.run();
 
         customerService = new CustomerServiceImpl(CustomerMapper.INSTANCE, customerRepository);
@@ -55,11 +58,10 @@ public class CustomerServiceITest {
 
         customerService.patchCustomer(id, customerDTO);
 
-        Optional<Customer> updatedCustomer = customerRepository.findById(id);
-        assertThat(updatedCustomer).isPresent();
-        assertThat(updatedCustomer.get()).isNotNull();
-        assertThat(updatedCustomer.get().getFirstname()).isEqualTo(UPDATED_NAME);
-        assertThat(updatedCustomer.get().getLastname()).isEqualTo(originalLastName);
+        Customer updatedCustomer = customerRepository.findById(id).orElse(null);
+        assertThat(updatedCustomer).isNotNull();
+        assertThat(updatedCustomer.getFirstname()).isEqualTo(UPDATED_NAME);
+        assertThat(updatedCustomer.getLastname()).isEqualTo(originalLastName);
     }
 
     @Test
@@ -76,11 +78,10 @@ public class CustomerServiceITest {
 
         customerService.patchCustomer(id, customerDTO);
 
-        Optional<Customer> updatedCustomer = customerRepository.findById(id);
-        assertThat(updatedCustomer).isPresent();
-        assertThat(updatedCustomer.get()).isNotNull();
-        assertThat(updatedCustomer.get().getFirstname()).isEqualTo(originalFirstName);
-        assertThat(updatedCustomer.get().getLastname()).isEqualTo(UPDATED_NAME);
+        Customer updatedCustomer = customerRepository.findById(id).orElse(null);
+        assertThat(updatedCustomer).isNotNull();
+        assertThat(updatedCustomer.getFirstname()).isEqualTo(originalFirstName);
+        assertThat(updatedCustomer.getLastname()).isEqualTo(UPDATED_NAME);
     }
 
     private Long getCustomerIdValue() {
